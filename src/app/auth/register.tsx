@@ -6,12 +6,12 @@ import {
   StyleSheet,
   Text,
 } from "react-native";
+import CustomButton from "../../components/custom/customButton";
+import CustomInput from "../../components/custom/customInput";
 import { registerUser } from "../../services/authService";
 import { colors } from "../../styles/colors";
 import { validateRegistration } from "../../utils/inputValidation";
 import AuthForm from "./authForm";
-import CustomInput from "./customInput";
-import CustomButton from "../../components/common/customButton";
 
 export default function RegisterScreen() {
   const [name, setName] = useState("");
