@@ -1,3 +1,4 @@
+import { Link } from "expo-router";
 import { useState } from "react";
 import {
   Alert,
@@ -107,6 +108,10 @@ export default function RegisterScreen() {
           loading={loading}
         />
       </AuthForm>
+
+      <Link href="/auth/login" style={styles.link}>
+        Already have an account? Log in
+      </Link>
     </KeyboardAvoidingView>
   );
 }
@@ -120,5 +125,12 @@ const styles = StyleSheet.create({
     color: colors.danger,
     fontSize: 14,
     marginBottom: 12,
+  },
+
+  link: {
+    color: colors.secondary,
+    textAlign: "center",
+    fontSize: 14,
+    marginBottom: 20,
   },
 });
