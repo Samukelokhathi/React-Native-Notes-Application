@@ -31,3 +31,27 @@ export const registerUser = async (
 
   return newUser;
 };
+
+export const loginUser = async (email: string, password: string) => {
+  const users = await getData<User[]>(STORAGE_KEYS.USERS, []);
+
+  const normalizedEmail = email.trim().toLowerCase();
+
+  const user = users.find((item) => item.email === normalizedEmail);
+
+  if (!user) {
+    throw new Error("Account not found");
+  }
+
+  const savedPassword = await SecureStore.getItemAsync(
+    `notespace_password_${user.id}`,
+  );
+
+  if (savedPassword !== password) {
+    throw new Error("Incorrect password");
+  }
+
+  await saveData(STORAGE_KEYS.SESSION, user.id);
+
+  return user;
+};
