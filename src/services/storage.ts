@@ -14,3 +14,7 @@ export const saveData = async <TData>(
 ): Promise<void> => {
   await AsyncStorage.setItem(key, JSON.stringify(data));
 };
+
+export const removeData = async (key: string) => {
+  await AsyncStorage.removeItem(key);
+};
