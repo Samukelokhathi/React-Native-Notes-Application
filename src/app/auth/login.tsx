@@ -1,17 +1,14 @@
-import { Link } from "expo-router";
+import { useAuth } from "@/context/authContext";
+import { Link, useRouter } from "expo-router";
 import { useState } from "react";
-import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-  Text,
-} from "react-native";
+import { KeyboardAvoidingView, Platform, StyleSheet, Text } from "react-native";
 import CustomButton from "../../components/custom/customButton";
 import CustomInput from "../../components/custom/customInput";
 import { loginUser } from "../../services/authService";
 import { colors } from "../../styles/colors";
-import AuthForm from "../auth/authForm";
+import AuthForm from "./authForm";
+const router = useRouter();
+const { refreshSession } = useAuth();
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -32,10 +29,9 @@ export default function LoginScreen() {
 
       const user = await loginUser(email, password);
 
-      Alert.alert(
-        "Welcome back",
-        `Hello, ${user.name}! Your login was successful.`,
-      );
+      await refreshSession();
+
+      router.replace("/dashboard");
 
       setEmail("");
       setPassword("");
