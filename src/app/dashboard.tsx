@@ -1,9 +1,8 @@
-
 import { useRouter } from "expo-router";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { useAuth } from "../context/authContext";
 import CategoryCard from "../components/dashboard/categoryCard";
 import { categories } from "../constants/categories";
+import { useAuth } from "../context/authContext";
 import { colors } from "../styles/colors";
 
 export default function DashboardScreen() {
@@ -32,6 +31,19 @@ export default function DashboardScreen() {
         <Text style={styles.welcome}>
           Welcome, {currentUser?.name || "User"}!
         </Text>
+        <Pressable
+          style={styles.addButton}
+          onPress={() => router.push("/addNote")}
+        >
+          <Text style={styles.addButtonText}>+ Create Note</Text>
+        </Pressable>
+
+        <Pressable
+          style={styles.viewButton}
+          onPress={() => router.push("/notes")}
+        >
+          <Text style={styles.viewButtonText}>View My Notes</Text>
+        </Pressable>
 
         <Text style={styles.heading}>My Notes</Text>
 
@@ -45,13 +57,6 @@ export default function DashboardScreen() {
             />
           ))}
         </View>
-
-        <Pressable
-          style={styles.addButton}
-          onPress={() => router.push("/addNote")}
-        >
-          <Text style={styles.addButtonText}>+ Create Note</Text>
-        </Pressable>
       </View>
     </ScrollView>
   );
@@ -114,6 +119,19 @@ const styles = StyleSheet.create({
   },
   addButtonText: {
     color: colors.white,
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  viewButton: {
+    borderWidth: 1,
+    borderColor: colors.secondary,
+    padding: 16,
+    borderRadius: 10,
+    alignItems: "center",
+    marginTop: 12,
+  },
+  viewButtonText: {
+    color: colors.secondary,
     fontSize: 16,
     fontWeight: "bold",
   },
