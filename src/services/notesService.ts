@@ -37,11 +37,10 @@ export const createNote = async (
   return newNote;
 };
 
-
 export const updateNote = async (
   userId: string,
   noteId: string,
-  updates: Partial<Pick<Note, "title" | "content" | "category">>
+  updates: Partial<Pick<Note, "title" | "content" | "category">>,
 ): Promise<void> => {
   const notes = await getAllNotes();
 
@@ -56,6 +55,19 @@ export const updateNote = async (
 
     return note;
   });
+
+  await saveAllNotes(updatedNotes);
+};
+
+export const deleteNote = async (
+  userId: string,
+  noteId: string,
+): Promise<void> => {
+  const notes = await getAllNotes();
+
+  const updatedNotes = notes.filter(
+    (note) => !(note.id === noteId && note.userId === userId),
+  );
 
   await saveAllNotes(updatedNotes);
 };
