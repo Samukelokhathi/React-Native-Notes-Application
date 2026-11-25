@@ -36,3 +36,26 @@ export const createNote = async (
 
   return newNote;
 };
+
+
+export const updateNote = async (
+  userId: string,
+  noteId: string,
+  updates: Partial<Pick<Note, "title" | "content" | "category">>
+): Promise<void> => {
+  const notes = await getAllNotes();
+
+  const updatedNotes = notes.map((note) => {
+    if (note.id === noteId && note.userId === userId) {
+      return {
+        ...note,
+        ...updates,
+        updatedAt: new Date().toISOString(),
+      };
+    }
+
+    return note;
+  });
+
+  await saveAllNotes(updatedNotes);
+};
