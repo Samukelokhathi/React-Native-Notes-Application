@@ -1,4 +1,3 @@
-
 import { useRouter } from "expo-router";
 import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 import { useAuth } from "../../context/authContext";
@@ -8,9 +7,10 @@ import { Note } from "../../types/noteAppModels";
 
 type NoteCardProps = {
   note: Note;
+  onDelete: (noteId: string) => void;
 };
 
-export default function NoteCard({ note }: NoteCardProps) {
+export default function NoteCard({ note, onDelete }: NoteCardProps) {
   const router = useRouter();
   const { currentUser } = useAuth();
 
@@ -23,7 +23,12 @@ export default function NoteCard({ note }: NoteCardProps) {
         onPress: async () => {
           if (!currentUser) return;
 
-          await deleteNote(currentUser.id, note.id);
+          try {
+            await deleteNote(currentUser.id, note.id);
+            onDelete(note.id);
+          } catch {
+            Alert.alert("Error", "Unable to delete this note.");
+          }
         },
       },
     ]);
@@ -58,10 +63,7 @@ export default function NoteCard({ note }: NoteCardProps) {
             <Text style={styles.edit}>Edit</Text>
           </Pressable>
 
-          <Pressable
-            style={styles.deleteButton}
-            onPress={handleDelete}
-          >
+          <Pressable style={styles.deleteButton} onPress={handleDelete}>
             <Text style={styles.delete}>Delete</Text>
           </Pressable>
         </View>

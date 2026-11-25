@@ -1,4 +1,4 @@
-
+import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
@@ -8,12 +8,11 @@ import {
   Text,
   View,
 } from "react-native";
-import { useFocusEffect, useRouter } from "expo-router";
+import NoteCard from "../components/notes/noteCard";
 import { useAuth } from "../context/authContext";
 import { getUserNotes } from "../services/notesService";
-import { Note } from "../types/noteAppModels";
 import { colors } from "../styles/colors";
-import NoteCard from "../components/notes/noteCard";
+import { Note } from "../types/noteAppModels";
 
 export default function NotesScreen() {
   const router = useRouter();
@@ -46,7 +45,7 @@ export default function NotesScreen() {
   useFocusEffect(
     useCallback(() => {
       loadNotes();
-    }, [currentUser?.id])
+    }, [currentUser?.id]),
   );
 
   return (
@@ -56,9 +55,7 @@ export default function NotesScreen() {
     >
       <View style={styles.header}>
         <Text style={styles.heading}>My Notes</Text>
-        <Text style={styles.subtitle}>
-          All your saved notes in one place.
-        </Text>
+        <Text style={styles.subtitle}>All your saved notes in one place.</Text>
       </View>
 
       <View style={styles.content}>
@@ -97,7 +94,15 @@ export default function NotesScreen() {
             </View>
 
             {notes.map((note) => (
-              <NoteCard key={note.id} note={note} />
+              <NoteCard
+                key={note.id}
+                note={note}
+                onDelete={(noteId) => {
+                  setNotes((previousNotes) =>
+                    previousNotes.filter((item) => item.id !== noteId),
+                  );
+                }}
+              />
             ))}
           </View>
         )}
