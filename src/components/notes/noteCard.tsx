@@ -95,8 +95,9 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   category: {
-    color: colors.secondary,
+    color: colors.text,
     fontSize: 12,
+  
   },
   content: {
     color: colors.muted,
