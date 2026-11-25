@@ -1,19 +1,38 @@
 
-import { StyleSheet, Text, View, ScrollView } from "react-native";
+import { useRouter } from "expo-router";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useAuth } from "../context/authContext";
 import CategoryCard from "../components/dashboard/categoryCard";
 import { categories } from "../constants/categories";
 import { colors } from "../styles/colors";
 
 export default function DashboardScreen() {
+  const router = useRouter();
+  const { currentUser, logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+    router.replace("/auth/login");
+  };
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>NoteSpace</Text>
-        <Text style={styles.subtitle}>Your personal notes space</Text>
+        <View>
+          <Text style={styles.title}>NoteSpace</Text>
+          <Text style={styles.subtitle}>Your personal notes space</Text>
+        </View>
+
+        <Pressable onPress={handleLogout}>
+          <Text style={styles.logout}>Logout</Text>
+        </Pressable>
       </View>
 
       <View style={styles.content}>
-        <Text style={styles.welcome}>Welcome!</Text>
+        <Text style={styles.welcome}>
+          Welcome, {currentUser?.name || "User"}!
+        </Text>
+
         <Text style={styles.heading}>My Notes</Text>
 
         <View style={styles.categoryContainer}>
@@ -26,6 +45,13 @@ export default function DashboardScreen() {
             />
           ))}
         </View>
+
+        <Pressable
+          style={styles.addButton}
+          onPress={() => router.push("/addNote")}
+        >
+          <Text style={styles.addButtonText}>+ Create Note</Text>
+        </Pressable>
       </View>
     </ScrollView>
   );
@@ -41,6 +67,9 @@ const styles = StyleSheet.create({
     paddingTop: 55,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   title: {
     color: colors.white,
@@ -51,6 +80,11 @@ const styles = StyleSheet.create({
     color: colors.secondary,
     fontSize: 14,
     marginTop: 6,
+  },
+  logout: {
+    color: colors.danger,
+    fontSize: 14,
+    fontWeight: "bold",
   },
   content: {
     padding: 24,
@@ -70,5 +104,17 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
+  },
+  addButton: {
+    backgroundColor: colors.primary,
+    padding: 16,
+    borderRadius: 10,
+    alignItems: "center",
+    marginTop: 20,
+  },
+  addButtonText: {
+    color: colors.white,
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
