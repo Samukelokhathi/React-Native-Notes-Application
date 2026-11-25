@@ -32,6 +32,8 @@ export default function NotesScreen() {
 
     try {
       setError("");
+      setLoading(true);
+
       const savedNotes = await getUserNotes(currentUser.id);
       setNotes(savedNotes);
     } catch {
@@ -48,7 +50,10 @@ export default function NotesScreen() {
   );
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.scrollContent}
+    >
       <View style={styles.header}>
         <Text style={styles.heading}>My Notes</Text>
         <Text style={styles.subtitle}>
@@ -64,6 +69,7 @@ export default function NotesScreen() {
         ) : notes.length === 0 ? (
           <View style={styles.empty}>
             <Text style={styles.emptyTitle}>No notes yet</Text>
+
             <Text style={styles.message}>
               Create your first note to get started.
             </Text>
@@ -76,9 +82,24 @@ export default function NotesScreen() {
             </Pressable>
           </View>
         ) : (
-          notes.map((note) => (
-            <NoteCard key={note.id} note={note} />
-          ))
+          <View style={styles.notesContainer}>
+            <View style={styles.notesHeader}>
+              <Text style={styles.notesCount}>
+                {notes.length} {notes.length === 1 ? "Note" : "Notes"}
+              </Text>
+
+              <Pressable
+                style={styles.addButton}
+                onPress={() => router.push("/addNote")}
+              >
+                <Text style={styles.addButtonText}>+ Add Note</Text>
+              </Pressable>
+            </View>
+
+            {notes.map((note) => (
+              <NoteCard key={note.id} note={note} />
+            ))}
+          </View>
         )}
       </View>
     </ScrollView>
@@ -89,6 +110,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 30,
   },
   header: {
     padding: 24,
@@ -109,6 +134,32 @@ const styles = StyleSheet.create({
   content: {
     padding: 24,
   },
+  notesContainer: {
+    gap: 16,
+  },
+  notesHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 8,
+  },
+  notesCount: {
+    color: colors.muted,
+    fontSize: 15,
+    fontWeight: "600",
+  },
+  addButton: {
+    borderWidth: 1,
+    borderColor: colors.secondary,
+    paddingVertical: 9,
+    paddingHorizontal: 14,
+    borderRadius: 8,
+  },
+  addButtonText: {
+    color: colors.secondary,
+    fontSize: 13,
+    fontWeight: "bold",
+  },
   empty: {
     alignItems: "center",
     paddingVertical: 40,
@@ -127,7 +178,8 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: colors.primary,
-    padding: 15,
+    paddingVertical: 15,
+    paddingHorizontal: 24,
     borderRadius: 10,
     marginTop: 22,
   },
