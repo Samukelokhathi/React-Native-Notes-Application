@@ -1,5 +1,7 @@
 import { useRouter } from "expo-router";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
+import { useAuth } from "../../context/authContext";
+import { deleteNote } from "../../services/notesService";
 import { colors } from "../../styles/colors";
 import { Note } from "../../types/noteAppModels";
 
@@ -9,6 +11,22 @@ type NoteCardProps = {
 
 export default function NoteCard({ note }: NoteCardProps) {
   const router = useRouter();
+  const { currentUser } = useAuth();
+
+  const handleDelete = () => {
+    Alert.alert("Delete Note", "Are you sure you want to delete this note?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: async () => {
+          if (!currentUser) return;
+
+          await deleteNote(currentUser.id, note.id);
+        },
+      },
+    ]);
+  };
 
   return (
     <View style={styles.card}>
@@ -35,6 +53,9 @@ export default function NoteCard({ note }: NoteCardProps) {
           }
         >
           <Text style={styles.edit}>Edit</Text>
+        </Pressable>
+        <Pressable onPress={handleDelete}>
+          <Text style={styles.delete}>Delete</Text>
         </Pressable>
       </View>
     </View>
@@ -85,6 +106,10 @@ const styles = StyleSheet.create({
   edit: {
     color: colors.secondary,
     fontSize: 14,
+    fontWeight: "bold",
+  },
+  delete: {
+    color: colors.danger,
     fontWeight: "bold",
   },
 });
