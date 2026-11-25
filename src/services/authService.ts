@@ -1,6 +1,6 @@
 import * as SecureStore from "expo-secure-store";
 import { STORAGE_KEYS } from "../components/constants/storageKeys";
-import { User } from "../types/users";
+import { User } from "../types/noteAppModels";
 import { getData, saveData } from "./storage";
 
 export const registerUser = async (

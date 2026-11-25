@@ -7,7 +7,7 @@ import {
 } from "react";
 import { STORAGE_KEYS } from "../constants/storageKeys";
 import { getData, removeData } from "../services/storage";
-import { User } from "../types/users";
+import { User } from "../types/noteAppModels";
 
 type AuthContextType = {
   currentUser: User | null;
