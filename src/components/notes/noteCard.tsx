@@ -1,13 +1,15 @@
-
-import { StyleSheet, Text, View } from "react-native";
-import { Note } from "../../types/noteAppModels";
+import { useRouter } from "expo-router";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { colors } from "../../styles/colors";
+import { Note } from "../../types/noteAppModels";
 
 type NoteCardProps = {
   note: Note;
 };
 
 export default function NoteCard({ note }: NoteCardProps) {
+  const router = useRouter();
+
   return (
     <View style={styles.card}>
       <View style={styles.header}>
@@ -19,9 +21,22 @@ export default function NoteCard({ note }: NoteCardProps) {
         {note.content}
       </Text>
 
-      <Text style={styles.date}>
-        {new Date(note.createdAt).toLocaleDateString()}
-      </Text>
+      <View style={styles.footer}>
+        <Text style={styles.date}>
+          {new Date(note.createdAt).toLocaleDateString()}
+        </Text>
+
+        <Pressable
+          onPress={() =>
+            router.push({
+              pathname: "/editNote",
+              params: { id: note.id },
+            })
+          }
+        >
+          <Text style={styles.edit}>Edit</Text>
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -57,9 +72,19 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 21,
   },
+  footer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 14,
+  },
   date: {
     color: colors.muted,
     fontSize: 11,
-    marginTop: 14,
+  },
+  edit: {
+    color: colors.secondary,
+    fontSize: 14,
+    fontWeight: "bold",
   },
 });
