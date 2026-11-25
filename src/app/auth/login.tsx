@@ -7,10 +7,11 @@ import CustomInput from "../../components/custom/customInput";
 import { loginUser } from "../../services/authService";
 import { colors } from "../../styles/colors";
 import AuthForm from "./authForm";
-const router = useRouter();
-const { refreshSession } = useAuth();
 
 export default function LoginScreen() {
+  const router = useRouter();
+  const { refreshSession } = useAuth();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -27,14 +28,13 @@ export default function LoginScreen() {
     try {
       setLoading(true);
 
-      const user = await loginUser(email, password);
-
+      await loginUser(email, password);
       await refreshSession();
-
-      router.replace("/dashboard");
 
       setEmail("");
       setPassword("");
+
+      router.replace("/dashboard");
     } catch (error) {
       setError(error instanceof Error ? error.message : "Unable to log in");
     } finally {
