@@ -1,3 +1,4 @@
+
 import { useRouter } from "expo-router";
 import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 import { useAuth } from "../../context/authContext";
@@ -44,19 +45,26 @@ export default function NoteCard({ note }: NoteCardProps) {
           {new Date(note.createdAt).toLocaleDateString()}
         </Text>
 
-        <Pressable
-          onPress={() =>
-            router.push({
-              pathname: "/editNote",
-              params: { id: note.id },
-            })
-          }
-        >
-          <Text style={styles.edit}>Edit</Text>
-        </Pressable>
-        <Pressable onPress={handleDelete}>
-          <Text style={styles.delete}>Delete</Text>
-        </Pressable>
+        <View style={styles.actions}>
+          <Pressable
+            style={styles.editButton}
+            onPress={() =>
+              router.push({
+                pathname: "/editNote",
+                params: { id: note.id },
+              })
+            }
+          >
+            <Text style={styles.edit}>Edit</Text>
+          </Pressable>
+
+          <Pressable
+            style={styles.deleteButton}
+            onPress={handleDelete}
+          >
+            <Text style={styles.delete}>Delete</Text>
+          </Pressable>
+        </View>
       </View>
     </View>
   );
@@ -97,19 +105,43 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: 14,
+    marginTop: 18,
   },
   date: {
     color: colors.muted,
     fontSize: 11,
   },
+  actions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  editButton: {
+    borderWidth: 1,
+    borderColor: colors.secondary,
+    borderRadius: 7,
+    paddingVertical: 7,
+    paddingHorizontal: 16,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  deleteButton: {
+    borderWidth: 1,
+    borderColor: colors.danger,
+    borderRadius: 7,
+    paddingVertical: 7,
+    paddingHorizontal: 16,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   edit: {
     color: colors.secondary,
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "bold",
   },
   delete: {
     color: colors.danger,
+    fontSize: 13,
     fontWeight: "bold",
   },
 });
