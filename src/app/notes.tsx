@@ -85,6 +85,47 @@ export default function NotesScreen() {
           value={search}
           onChangeText={setSearch}
         />
+
+        <View style={styles.sortContainer}>
+          <Text style={styles.sortLabel}>Sort by date:</Text>
+
+          <View style={styles.sortButtons}>
+            <Pressable
+              style={[
+                styles.sortButton,
+                sortOrder === "newest" && styles.activeSortButton,
+              ]}
+              onPress={() => setSortOrder("newest")}
+            >
+              <Text
+                style={[
+                  styles.sortButtonText,
+                  sortOrder === "newest" && styles.activeSortText,
+                ]}
+              >
+                Newest
+              </Text>
+            </Pressable>
+
+            <Pressable
+              style={[
+                styles.sortButton,
+                sortOrder === "oldest" && styles.activeSortButton,
+              ]}
+              onPress={() => setSortOrder("oldest")}
+            >
+              <Text
+                style={[
+                  styles.sortButtonText,
+                  sortOrder === "oldest" && styles.activeSortText,
+                ]}
+              >
+                Oldest
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+
         {loading ? (
           <ActivityIndicator size="large" color={colors.secondary} />
         ) : error ? (
