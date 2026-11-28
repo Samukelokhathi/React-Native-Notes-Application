@@ -55,3 +55,69 @@ export const loginUser = async (email: string, password: string) => {
 
   return user;
 };
+
+export const updateUserProfile = async (
+  userId: string,
+  name: string,
+  email: string,
+) => {
+  const users = await getData<User[]>(STORAGE_KEYS.USERS, []);
+
+  const normalizedEmail = email.trim().toLowerCase();
+
+  if (!name.trim()) {
+    throw new Error("Name is required");
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+    throw new Error("Enter a valid email address");
+  }
+
+  const emailExists = users.some(
+    (user) => user.email === normalizedEmail && user.id !== userId,
+  );
+
+  if (emailExists) {
+    throw new Error("This email is already registered");
+  }
+
+  const updatedUsers = users.map((user) =>
+    user.id === userId
+      ? {
+          ...user,
+          name: name.trim(),
+          email: normalizedEmail,
+        }
+      : user,
+  );
+
+  const userExists = users.some((user) => user.id === userId);
+
+  if (!userExists) {
+    throw new Error("User account not found");
+  }
+
+  await saveData(STORAGE_KEYS.USERS, updatedUsers);
+
+  return updatedUsers.find((user) => user.id === userId)!;
+};
+
+export const updateUserPassword = async (
+  userId: string,
+  currentPassword: string,
+  newPassword: string,
+) => {
+  const savedPassword = await SecureStore.getItemAsync(
+    `notespace_password_${userId}`,
+  );
+
+  if (savedPassword !== currentPassword) {
+    throw new Error("Current password is incorrect");
+  }
+
+  if (newPassword.length < 8) {
+    throw new Error("New password must contain at least 8 characters");
+  }
+
+  await SecureStore.setItemAsync(`notespace_password_${userId}`, newPassword);
+};
