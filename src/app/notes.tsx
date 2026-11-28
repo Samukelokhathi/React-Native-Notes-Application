@@ -21,6 +21,7 @@ export default function NotesScreen() {
 
   const [notes, setNotes] = useState<Note[]>([]);
   const [search, setSearch] = useState("");
+  const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -57,6 +58,13 @@ export default function NotesScreen() {
       note.content.toLowerCase().includes(searchText) ||
       note.category.toLowerCase().includes(searchText)
     );
+  });
+
+  const sortedNotes = [...filteredNotes].sort((a, b) => {
+    const dateA = new Date(a.createdAt).getTime();
+    const dateB = new Date(b.createdAt).getTime();
+
+    return sortOrder === "newest" ? dateB - dateA : dateA - dateB;
   });
 
   return (
@@ -115,7 +123,7 @@ export default function NotesScreen() {
               </Pressable>
             </View>
 
-            {filteredNotes.map((note) => (
+            {sortedNotes.map((note) => (
               <NoteCard
                 key={note.id}
                 note={note}
