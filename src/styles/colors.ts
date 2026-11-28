@@ -10,3 +10,16 @@ export const colors = {
   danger: "#EF4444",
   success: "#22C55E",
 };
+
+export const lightColors = {
+  background: "#F5F6FA",
+  surface: "#FFFFFF",
+  primary: "#6D5DF5",
+  secondary: "#6D5DF5",
+  white: "#15182B",
+  text: "#252A3A",
+  muted: "#73798B",
+  border: "#DDE0EA",
+  danger: "#DC2626",
+  success: "#16A34A",
+};

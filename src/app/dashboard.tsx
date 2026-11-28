@@ -1,4 +1,3 @@
-
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
 import {
@@ -14,13 +13,19 @@ import {
 } from "react-native";
 import CategoryCard from "../components/dashboard/categoryCard";
 import { useAuth } from "../context/authContext";
-import { addUserCategory, getUserCategories } from "../services/categoryService";
+import { useTheme } from "../context/themeContext";
+import {
+  addUserCategory,
+  getUserCategories,
+} from "../services/categoryService";
 import { getUserNotes } from "../services/notesService";
 import { colors } from "../styles/colors";
 import { Category, Note } from "../types/noteAppModels";
 
 export default function DashboardScreen() {
   const router = useRouter();
+  const { colors: themeColors } = useTheme();
+  const styles = createStyles(themeColors);
   const { currentUser, logout } = useAuth();
 
   const [userCategories, setUserCategories] = useState<Category[]>([]);
@@ -67,10 +72,7 @@ export default function DashboardScreen() {
     if (!currentUser) return;
 
     try {
-      const newCategory = await addUserCategory(
-        currentUser.id,
-        categoryName,
-      );
+      const newCategory = await addUserCategory(currentUser.id, categoryName);
 
       setUserCategories((previous) => [...previous, newCategory]);
       setCategoryName("");
@@ -146,7 +148,7 @@ export default function DashboardScreen() {
         </View>
 
         {loading ? (
-          <ActivityIndicator size="large" color={colors.secondary} />
+          <ActivityIndicator size="large" color={themeColors.secondary} />
         ) : (
           <View style={styles.categoryContainer}>
             {userCategories.map((category) => {
@@ -198,10 +200,7 @@ export default function DashboardScreen() {
                 <Text style={styles.cancelText}>Cancel</Text>
               </Pressable>
 
-              <Pressable
-                style={styles.saveButton}
-                onPress={handleAddCategory}
-              >
+              <Pressable style={styles.saveButton} onPress={handleAddCategory}>
                 <Text style={styles.saveText}>Add Category</Text>
               </Pressable>
             </View>
@@ -212,169 +211,170 @@ export default function DashboardScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  scrollContent: {
-    paddingBottom: 30,
-  },
-  header: {
-    padding: 24,
-    paddingTop: 55,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  title: {
-    color: colors.white,
-    fontSize: 26,
-    fontWeight: "bold",
-  },
-  subtitle: {
-    color: colors.secondary,
-    fontSize: 14,
-    marginTop: 6,
-  },
-  logout: {
-    color: colors.danger,
-    fontSize: 14,
-    fontWeight: "bold",
-  },
-  headerActions: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  profileButton: {
-    borderWidth: 1,
-    borderColor: colors.secondary,
-    borderRadius: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-  },
-  profileButtonText: {
-    color: colors.secondary,
-    fontSize: 13,
-    fontWeight: "bold",
-  },
-  content: {
-    padding: 24,
-  },
-  welcome: {
-    color: colors.muted,
-    fontSize: 15,
-  },
-  addButton: {
-    backgroundColor: colors.primary,
-    padding: 16,
-    borderRadius: 10,
-    alignItems: "center",
-    marginTop: 20,
-  },
-  addButtonText: {
-    color: colors.white,
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  viewButton: {
-    borderWidth: 1,
-    borderColor: colors.secondary,
-    padding: 16,
-    borderRadius: 10,
-    alignItems: "center",
-    marginTop: 12,
-  },
-  viewButtonText: {
-    color: colors.secondary,
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  categoryHeading: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: 26,
-    marginBottom: 18,
-  },
-  heading: {
-    color: colors.white,
-    fontSize: 25,
-    fontWeight: "bold",
-  },
-  addCategoryButton: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.secondary,
-    borderRadius: 8,
-    paddingVertical: 9,
-    paddingHorizontal: 12,
-  },
-  addCategoryText: {
-    color: colors.secondary,
-    fontSize: 13,
-    fontWeight: "bold",
-  },
-  categoryContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-  },
-  modalBackground: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.7)",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 24,
-  },
-  modal: {
-    width: "100%",
-    backgroundColor: colors.surface,
-    borderRadius: 14,
-    padding: 22,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  modalTitle: {
-    color: colors.white,
-    fontSize: 21,
-    fontWeight: "bold",
-    marginBottom: 18,
-  },
-  categoryInput: {
-    backgroundColor: colors.background,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 9,
-    padding: 14,
-    color: colors.white,
-    fontSize: 15,
-  },
-  modalActions: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    gap: 10,
-    marginTop: 20,
-  },
-  cancelButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-  },
-  cancelText: {
-    color: colors.muted,
-    fontWeight: "bold",
-  },
-  saveButton: {
-    backgroundColor: colors.primary,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    borderRadius: 8,
-  },
-  saveText: {
-    color: colors.white,
-    fontWeight: "bold",
-  },
-});
+const createStyles = (themeColors: typeof colors) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: themeColors.background,
+    },
+    scrollContent: {
+      paddingBottom: 30,
+    },
+    header: {
+      padding: 24,
+      paddingTop: 55,
+      borderBottomWidth: 1,
+      borderBottomColor: themeColors.border,
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+    },
+    title: {
+      color: colors.white,
+      fontSize: 26,
+      fontWeight: "bold",
+    },
+    subtitle: {
+      color: colors.secondary,
+      fontSize: 14,
+      marginTop: 6,
+    },
+    logout: {
+      color: colors.danger,
+      fontSize: 14,
+      fontWeight: "bold",
+    },
+    headerActions: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 12,
+    },
+    profileButton: {
+      borderWidth: 1,
+      borderColor: colors.secondary,
+      borderRadius: 8,
+      paddingVertical: 8,
+      paddingHorizontal: 12,
+    },
+    profileButtonText: {
+      color: colors.secondary,
+      fontSize: 13,
+      fontWeight: "bold",
+    },
+    content: {
+      padding: 24,
+    },
+    welcome: {
+      color: colors.muted,
+      fontSize: 15,
+    },
+    addButton: {
+      backgroundColor: colors.primary,
+      padding: 16,
+      borderRadius: 10,
+      alignItems: "center",
+      marginTop: 20,
+    },
+    addButtonText: {
+      color: colors.white,
+      fontSize: 16,
+      fontWeight: "bold",
+    },
+    viewButton: {
+      borderWidth: 1,
+      borderColor: colors.secondary,
+      padding: 16,
+      borderRadius: 10,
+      alignItems: "center",
+      marginTop: 12,
+    },
+    viewButtonText: {
+      color: colors.secondary,
+      fontSize: 16,
+      fontWeight: "bold",
+    },
+    categoryHeading: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginTop: 26,
+      marginBottom: 18,
+    },
+    heading: {
+      color: colors.white,
+      fontSize: 25,
+      fontWeight: "bold",
+    },
+    addCategoryButton: {
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.secondary,
+      borderRadius: 8,
+      paddingVertical: 9,
+      paddingHorizontal: 12,
+    },
+    addCategoryText: {
+      color: colors.secondary,
+      fontSize: 13,
+      fontWeight: "bold",
+    },
+    categoryContainer: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      justifyContent: "space-between",
+    },
+    modalBackground: {
+      flex: 1,
+      backgroundColor: "rgba(0,0,0,0.7)",
+      justifyContent: "center",
+      alignItems: "center",
+      padding: 24,
+    },
+    modal: {
+      width: "100%",
+      backgroundColor: colors.surface,
+      borderRadius: 14,
+      padding: 22,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    modalTitle: {
+      color: colors.white,
+      fontSize: 21,
+      fontWeight: "bold",
+      marginBottom: 18,
+    },
+    categoryInput: {
+      backgroundColor: colors.background,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 9,
+      padding: 14,
+      color: colors.white,
+      fontSize: 15,
+    },
+    modalActions: {
+      flexDirection: "row",
+      justifyContent: "flex-end",
+      gap: 10,
+      marginTop: 20,
+    },
+    cancelButton: {
+      paddingVertical: 12,
+      paddingHorizontal: 14,
+    },
+    cancelText: {
+      color: colors.muted,
+      fontWeight: "bold",
+    },
+    saveButton: {
+      backgroundColor: colors.primary,
+      paddingVertical: 12,
+      paddingHorizontal: 14,
+      borderRadius: 8,
+    },
+    saveText: {
+      color: colors.white,
+      fontWeight: "bold",
+    },
+  });
