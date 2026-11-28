@@ -5,7 +5,6 @@ export type User = {
   createdAt: string;
 };
 
-
 export type Note = {
   id: string;
   userId: string;
@@ -14,4 +13,9 @@ export type Note = {
   category: string;
   createdAt: string;
   updatedAt: string;
+};
+
+export type Category = {
+  name: string;
+  color: string;
 };

@@ -1,4 +1,5 @@
-import { useFocusEffect, useRouter } from "expo-router";
+
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
@@ -11,23 +12,30 @@ import {
 } from "react-native";
 import NoteCard from "../components/notes/noteCard";
 import { useAuth } from "../context/authContext";
+import { getUserCategories } from "../services/categoryService";
 import { getUserNotes } from "../services/notesService";
 import { colors } from "../styles/colors";
-import { Note } from "../types/noteAppModels";
+import { Category, Note } from "../types/noteAppModels";
 
 export default function NotesScreen() {
   const router = useRouter();
+  const { category } = useLocalSearchParams<{ category?: string }>();
   const { currentUser } = useAuth();
 
   const [notes, setNotes] = useState<Note[]>([]);
+  const [userCategories, setUserCategories] = useState<Category[]>([]);
   const [search, setSearch] = useState("");
   const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const selectedCategory =
+    typeof category === "string" ? category : "";
+
   const loadNotes = async () => {
     if (!currentUser) {
       setNotes([]);
+      setUserCategories([]);
       setLoading(false);
       return;
     }
@@ -36,8 +44,13 @@ export default function NotesScreen() {
       setError("");
       setLoading(true);
 
-      const savedNotes = await getUserNotes(currentUser.id);
+      const [savedNotes, savedCategories] = await Promise.all([
+        getUserNotes(currentUser.id),
+        getUserCategories(currentUser.id),
+      ]);
+
       setNotes(savedNotes);
+      setUserCategories(savedCategories);
     } catch {
       setError("Unable to load your notes.");
     } finally {
@@ -50,9 +63,25 @@ export default function NotesScreen() {
       loadNotes();
     }, [currentUser?.id]),
   );
-  const filteredNotes = notes.filter((note) => {
-    const searchText = search.toLowerCase().trim();
 
+  const categoryColor = (categoryName: string) => {
+    return (
+      userCategories.find(
+        (item) => item.name.toLowerCase() === categoryName.toLowerCase(),
+      )?.color || colors.secondary
+    );
+  };
+
+  const categoryNotes = notes.filter((note) => {
+    return (
+      !selectedCategory ||
+      note.category.toLowerCase() === selectedCategory.toLowerCase()
+    );
+  });
+
+  const searchText = search.toLowerCase().trim();
+
+  const filteredNotes = categoryNotes.filter((note) => {
     return (
       note.title.toLowerCase().includes(searchText) ||
       note.content.toLowerCase().includes(searchText) ||
@@ -73,8 +102,24 @@ export default function NotesScreen() {
       contentContainerStyle={styles.scrollContent}
     >
       <View style={styles.header}>
-        <Text style={styles.heading}>My Notes</Text>
-        <Text style={styles.subtitle}>All your saved notes in one place.</Text>
+        <Text style={styles.heading}>
+          {selectedCategory || "All Notes"}
+        </Text>
+
+        <Text style={styles.subtitle}>
+          {selectedCategory
+            ? `Notes saved in ${selectedCategory}`
+            : "All your saved notes in one place."}
+        </Text>
+
+        {selectedCategory ? (
+          <Pressable
+            style={styles.allNotesButton}
+            onPress={() => router.replace("/notes")}
+          >
+            <Text style={styles.allNotesText}>View All Notes</Text>
+          </Pressable>
+        ) : null}
       </View>
 
       <View style={styles.content}>
@@ -130,30 +175,12 @@ export default function NotesScreen() {
           <ActivityIndicator size="large" color={colors.secondary} />
         ) : error ? (
           <Text style={styles.message}>{error}</Text>
-        ) : filteredNotes.length === 0 ? (
-          <View style={styles.emptyTitle}>
-            <Text style={styles.emptyTitle}>
-              {notes.length === 0 ? "No notes yet" : "No matching notes"}
-            </Text>
-
-            <Text style={styles.message}>
-              {notes.length === 0
-                ? "Create your first note to get started."
-                : "Try another search term."}
-            </Text>
-
-            <Pressable
-              style={styles.button}
-              onPress={() => router.push("/addNote")}
-            >
-              <Text style={styles.buttonText}>+ Create Note</Text>
-            </Pressable>
-          </View>
         ) : (
           <View style={styles.notesContainer}>
             <View style={styles.notesHeader}>
               <Text style={styles.notesCount}>
-                {notes.length} {notes.length === 1 ? "Note" : "Notes"}
+                {sortedNotes.length}{" "}
+                {sortedNotes.length === 1 ? "Note" : "Notes"}
               </Text>
 
               <Pressable
@@ -164,17 +191,43 @@ export default function NotesScreen() {
               </Pressable>
             </View>
 
-            {sortedNotes.map((note) => (
-              <NoteCard
-                key={note.id}
-                note={note}
-                onDelete={(noteId) => {
-                  setNotes((previousNotes) =>
-                    previousNotes.filter((item) => item.id !== noteId),
-                  );
-                }}
-              />
-            ))}
+            {sortedNotes.length === 0 ? (
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyTitle}>
+                  {notes.length === 0
+                    ? "No notes yet"
+                    : "No matching notes"}
+                </Text>
+
+                <Text style={styles.message}>
+                  {notes.length === 0
+                    ? "Create your first note to get started."
+                    : "Try another search or category."}
+                </Text>
+
+                <Pressable
+                  style={styles.createButton}
+                  onPress={() => router.push("/addNote")}
+                >
+                  <Text style={styles.createButtonText}>
+                    + Create Note
+                  </Text>
+                </Pressable>
+              </View>
+            ) : (
+              sortedNotes.map((note) => (
+                <NoteCard
+                  key={note.id}
+                  note={note}
+                  categoryColor={categoryColor(note.category)}
+                  onDelete={(noteId) => {
+                    setNotes((previousNotes) =>
+                      previousNotes.filter((item) => item.id !== noteId),
+                    );
+                  }}
+                />
+              ))
+            )}
           </View>
         )}
       </View>
@@ -207,6 +260,15 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: 8,
   },
+  allNotesButton: {
+    alignSelf: "flex-start",
+    marginTop: 15,
+  },
+  allNotesText: {
+    color: colors.secondary,
+    fontSize: 14,
+    fontWeight: "bold",
+  },
   content: {
     padding: 24,
   },
@@ -236,7 +298,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "bold",
   },
-  empty: {
+  emptyContainer: {
     alignItems: "center",
     paddingVertical: 40,
   },
@@ -252,14 +314,14 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 10,
   },
-  button: {
+  createButton: {
     backgroundColor: colors.primary,
     paddingVertical: 15,
     paddingHorizontal: 24,
     borderRadius: 10,
     marginTop: 22,
   },
-  buttonText: {
+  createButtonText: {
     color: colors.white,
     fontWeight: "bold",
   },
@@ -276,18 +338,15 @@ const styles = StyleSheet.create({
   sortContainer: {
     marginBottom: 20,
   },
-
   sortLabel: {
     color: colors.muted,
     fontSize: 13,
     marginBottom: 10,
   },
-
   sortButtons: {
     flexDirection: "row",
     gap: 10,
   },
-
   sortButton: {
     borderWidth: 1,
     borderColor: colors.border,
@@ -295,18 +354,15 @@ const styles = StyleSheet.create({
     paddingVertical: 9,
     paddingHorizontal: 18,
   },
-
   activeSortButton: {
     backgroundColor: colors.primary,
     borderColor: colors.primary,
   },
-
   sortButtonText: {
     color: colors.muted,
     fontSize: 13,
     fontWeight: "600",
   },
-
   activeSortText: {
     color: colors.white,
   },

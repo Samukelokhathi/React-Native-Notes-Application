@@ -7,10 +7,15 @@ import { Note } from "../../types/noteAppModels";
 
 type NoteCardProps = {
   note: Note;
+  categoryColor: string;
   onDelete: (noteId: string) => void;
 };
 
-export default function NoteCard({ note, onDelete }: NoteCardProps) {
+export default function NoteCard({
+  note,
+  categoryColor,
+  onDelete,
+}: NoteCardProps) {
   const router = useRouter();
   const { currentUser } = useAuth();
 
@@ -38,7 +43,18 @@ export default function NoteCard({ note, onDelete }: NoteCardProps) {
     <View style={styles.card}>
       <View style={styles.header}>
         <Text style={styles.title}>{note.title}</Text>
-        <Text style={styles.category}>{note.category}</Text>
+
+        <Text
+          style={[
+            styles.category,
+            {
+              color: categoryColor,
+              borderColor: categoryColor,
+            },
+          ]}
+        >
+          {note.category}
+        </Text>
       </View>
 
       <Text style={styles.content} numberOfLines={3}>
@@ -95,9 +111,12 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   category: {
-    color: colors.text,
     fontSize: 12,
-  
+    fontWeight: "bold",
+    borderWidth: 1,
+    borderRadius: 6,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
   },
   content: {
     color: colors.muted,

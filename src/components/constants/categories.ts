@@ -1,4 +1,6 @@
-export const categories = [
+import { Category } from "../../types/noteAppModels";
+
+export const categories: Category[] = [
   {
     name: "Work",
     color: "#8175F5",
@@ -10,5 +12,9 @@ export const categories = [
   {
     name: "Personal",
     color: "#F59E0B",
+  },
+  {
+    name: "Ideas",
+    color: "#22C55E",
   },
 ];

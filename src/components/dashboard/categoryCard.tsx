@@ -1,20 +1,24 @@
-
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { colors } from "../../styles/colors";
 
 type CategoryCardProps = {
   name: string;
   color: string;
   noteCount: number;
+  onPress: () => void;
 };
 
 export default function CategoryCard({
   name,
   color,
   noteCount,
+  onPress,
 }: CategoryCardProps) {
   return (
-    <View style={styles.card}>
+    <Pressable
+      style={({ pressed }) => [styles.card, pressed && styles.pressed]}
+      onPress={onPress}
+    >
       <View style={[styles.indicator, { backgroundColor: color }]} />
 
       <Text style={styles.name}>{name}</Text>
@@ -22,7 +26,7 @@ export default function CategoryCard({
       <Text style={styles.count}>
         {noteCount} {noteCount === 1 ? "note" : "notes"}
       </Text>
-    </View>
+    </Pressable>
   );
 }
 
@@ -33,6 +37,9 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     width: "48%",
     marginBottom: 14,
+  },
+  pressed: {
+    opacity: 0.7,
   },
   indicator: {
     width: 12,
