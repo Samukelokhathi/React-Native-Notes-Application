@@ -22,9 +22,18 @@ export default function DashboardScreen() {
           <Text style={styles.subtitle}>Your personal notes space</Text>
         </View>
 
-        <Pressable onPress={handleLogout}>
-          <Text style={styles.logout}>Logout</Text>
-        </Pressable>
+        <View style={styles.headerActions}>
+          <Pressable
+            style={styles.profileButton}
+            onPress={() => router.push("/profile")}
+          >
+            <Text style={styles.profileButtonText}>Profile</Text>
+          </Pressable>
+
+          <Pressable onPress={handleLogout}>
+            <Text style={styles.logout}>Logout</Text>
+          </Pressable>
+        </View>
       </View>
 
       <View style={styles.content}>
@@ -133,6 +142,23 @@ const styles = StyleSheet.create({
   viewButtonText: {
     color: colors.secondary,
     fontSize: 16,
+    fontWeight: "bold",
+  },
+  headerActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  profileButton: {
+    borderWidth: 1,
+    borderColor: colors.secondary,
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  profileButtonText: {
+    color: colors.secondary,
+    fontSize: 13,
     fontWeight: "bold",
   },
 });
