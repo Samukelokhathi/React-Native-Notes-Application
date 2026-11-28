@@ -1,19 +1,20 @@
-
-import { useState } from "react";
+import { useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   View,
-  Pressable,
 } from "react-native";
-import { useRouter } from "expo-router";
 import { useAuth } from "../context/authContext";
-import { categories } from "../constants/categories";
-import { colors } from "../styles/colors";
+import { getUserCategories } from "../services/categoryService";
 import { createNote } from "../services/notesService";
+import { colors } from "../styles/colors";
+import { Category } from "../types/noteAppModels";
 
 export default function AddNoteScreen() {
   const router = useRouter();
@@ -22,7 +23,36 @@ export default function AddNoteScreen() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("Personal");
+  const [userCategories, setUserCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+
+  const loadCategories = async () => {
+    if (!currentUser) {
+      setUserCategories([]);
+      setLoadingCategories(false);
+      return;
+    }
+
+    try {
+      const savedCategories = await getUserCategories(currentUser.id);
+      setUserCategories(savedCategories);
+
+      if (!savedCategories.some((item) => item.name === category)) {
+        setCategory(savedCategories[0]?.name || "");
+      }
+    } catch {
+      Alert.alert("Error", "Unable to load categories.");
+    } finally {
+      setLoadingCategories(false);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      loadCategories();
+    }, [currentUser?.id]),
+  );
 
   const handleSave = async () => {
     if (!title.trim() || !content.trim()) {
@@ -32,6 +62,11 @@ export default function AddNoteScreen() {
 
     if (!currentUser) {
       Alert.alert("Error", "Please log in before creating a note.");
+      return;
+    }
+
+    if (!category) {
+      Alert.alert("Missing category", "Please select a category.");
       return;
     }
 
@@ -62,6 +97,7 @@ export default function AddNoteScreen() {
 
       <View style={styles.form}>
         <Text style={styles.label}>Title</Text>
+
         <TextInput
           style={styles.input}
           placeholder="Enter note title"
@@ -71,32 +107,38 @@ export default function AddNoteScreen() {
         />
 
         <Text style={styles.label}>Category</Text>
-        <View style={styles.categories}>
-          {categories.map((item) => (
-            <Pressable
-              key={item.name}
-              style={[
-                styles.categoryButton,
-                category === item.name && {
-                  borderColor: item.color,
-                  backgroundColor: colors.surface,
-                },
-              ]}
-              onPress={() => setCategory(item.name)}
-            >
-              <Text
+
+        {loadingCategories ? (
+          <ActivityIndicator color={colors.secondary} />
+        ) : (
+          <View style={styles.categories}>
+            {userCategories.map((item) => (
+              <Pressable
+                key={item.name}
                 style={[
-                  styles.categoryText,
-                  category === item.name && { color: item.color },
+                  styles.categoryButton,
+                  category === item.name && {
+                    borderColor: item.color,
+                    backgroundColor: colors.surface,
+                  },
                 ]}
+                onPress={() => setCategory(item.name)}
               >
-                {item.name}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
+                <Text
+                  style={[
+                    styles.categoryText,
+                    category === item.name && { color: item.color },
+                  ]}
+                >
+                  {item.name}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        )}
 
         <Text style={styles.label}>Note</Text>
+
         <TextInput
           style={[styles.input, styles.textArea]}
           placeholder="Start writing your note..."
@@ -110,7 +152,7 @@ export default function AddNoteScreen() {
         <Pressable
           style={[styles.saveButton, loading && styles.disabledButton]}
           onPress={handleSave}
-          disabled={loading}
+          disabled={loading || loadingCategories}
         >
           <Text style={styles.saveButtonText}>
             {loading ? "Saving..." : "Save Note"}
