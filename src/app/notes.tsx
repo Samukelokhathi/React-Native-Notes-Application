@@ -273,4 +273,41 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 22,
   },
+  sortContainer: {
+    marginBottom: 20,
+  },
+
+  sortLabel: {
+    color: colors.muted,
+    fontSize: 13,
+    marginBottom: 10,
+  },
+
+  sortButtons: {
+    flexDirection: "row",
+    gap: 10,
+  },
+
+  sortButton: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 8,
+    paddingVertical: 9,
+    paddingHorizontal: 18,
+  },
+
+  activeSortButton: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+
+  sortButtonText: {
+    color: colors.muted,
+    fontSize: 13,
+    fontWeight: "600",
+  },
+
+  activeSortText: {
+    color: colors.white,
+  },
 });
