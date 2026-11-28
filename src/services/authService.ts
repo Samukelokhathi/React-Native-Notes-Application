@@ -7,7 +7,7 @@ export const registerUser = async (
   name: string,
   email: string,
   password: string,
-) => {
+): Promise<User> => {
   const users = await getData<User[]>(STORAGE_KEYS.USERS, []);
 
   const normalizedEmail = email.trim().toLowerCase();
@@ -32,7 +32,10 @@ export const registerUser = async (
   return newUser;
 };
 
-export const loginUser = async (email: string, password: string) => {
+export const loginUser = async (
+  email: string,
+  password: string,
+): Promise<User> => {
   const users = await getData<User[]>(STORAGE_KEYS.USERS, []);
 
   const normalizedEmail = email.trim().toLowerCase();
@@ -60,7 +63,7 @@ export const updateUserProfile = async (
   userId: string,
   name: string,
   email: string,
-) => {
+): Promise<User> => {
   const users = await getData<User[]>(STORAGE_KEYS.USERS, []);
 
   const normalizedEmail = email.trim().toLowerCase();
@@ -81,6 +84,12 @@ export const updateUserProfile = async (
     throw new Error("This email is already registered");
   }
 
+  const userExists = users.some((user) => user.id === userId);
+
+  if (!userExists) {
+    throw new Error("User account not found");
+  }
+
   const updatedUsers = users.map((user) =>
     user.id === userId
       ? {
@@ -91,22 +100,22 @@ export const updateUserProfile = async (
       : user,
   );
 
-  const userExists = users.some((user) => user.id === userId);
-
-  if (!userExists) {
-    throw new Error("User account not found");
-  }
-
   await saveData(STORAGE_KEYS.USERS, updatedUsers);
 
-  return updatedUsers.find((user) => user.id === userId)!;
+  const updatedUser = updatedUsers.find((user) => user.id === userId);
+
+  if (!updatedUser) {
+    throw new Error("Unable to update profile");
+  }
+
+  return updatedUser;
 };
 
 export const updateUserPassword = async (
   userId: string,
   currentPassword: string,
   newPassword: string,
-) => {
+): Promise<void> => {
   const savedPassword = await SecureStore.getItemAsync(
     `notespace_password_${userId}`,
   );
