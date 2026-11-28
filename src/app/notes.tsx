@@ -6,6 +6,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from "react-native";
 import NoteCard from "../components/notes/noteCard";
@@ -19,6 +20,7 @@ export default function NotesScreen() {
   const { currentUser } = useAuth();
 
   const [notes, setNotes] = useState<Note[]>([]);
+  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -47,6 +49,15 @@ export default function NotesScreen() {
       loadNotes();
     }, [currentUser?.id]),
   );
+  const filteredNotes = notes.filter((note) => {
+    const searchText = search.toLowerCase().trim();
+
+    return (
+      note.title.toLowerCase().includes(searchText) ||
+      note.content.toLowerCase().includes(searchText) ||
+      note.category.toLowerCase().includes(searchText)
+    );
+  });
 
   return (
     <ScrollView
@@ -59,16 +70,27 @@ export default function NotesScreen() {
       </View>
 
       <View style={styles.content}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search your notes..."
+          placeholderTextColor={colors.muted}
+          value={search}
+          onChangeText={setSearch}
+        />
         {loading ? (
           <ActivityIndicator size="large" color={colors.secondary} />
         ) : error ? (
           <Text style={styles.message}>{error}</Text>
-        ) : notes.length === 0 ? (
-          <View style={styles.empty}>
-            <Text style={styles.emptyTitle}>No notes yet</Text>
+        ) : filteredNotes.length === 0 ? (
+          <View style={styles.emptyTitle}>
+            <Text style={styles.emptyTitle}>
+              {notes.length === 0 ? "No notes yet" : "No matching notes"}
+            </Text>
 
             <Text style={styles.message}>
-              Create your first note to get started.
+              {notes.length === 0
+                ? "Create your first note to get started."
+                : "Try another search term."}
             </Text>
 
             <Pressable
@@ -93,7 +115,7 @@ export default function NotesScreen() {
               </Pressable>
             </View>
 
-            {notes.map((note) => (
+            {filteredNotes.map((note) => (
               <NoteCard
                 key={note.id}
                 note={note}
@@ -191,5 +213,15 @@ const styles = StyleSheet.create({
   buttonText: {
     color: colors.white,
     fontWeight: "bold",
+  },
+  searchInput: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 10,
+    padding: 14,
+    color: colors.white,
+    fontSize: 14,
+    marginBottom: 22,
   },
 });
